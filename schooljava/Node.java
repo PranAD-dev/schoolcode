@@ -7,4 +7,7 @@ public class Node {
         this.val = val;
         this.next = next;
     }
+    public void tuff (String name){
+        System.out.println("Hi "+ name);
+    }
 }
