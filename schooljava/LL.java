@@ -16,6 +16,10 @@ public class LL {
         }
     }
 
+    public void randomBtn(){
+        head.next = null;
+    }
+
 
 
     public static void main(String[] args){
