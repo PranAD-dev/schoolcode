@@ -6,7 +6,15 @@ import java.util.Collection;
 public class MaxHeap
 {
    private ArrayList<Student> students;
-   
+
+   private void insertionHelper(int index){
+   int parent = parent(index);
+   if (students.get(parent).compareTo(students.get(index)) < 0) {
+      swap(parent, index);
+      insertionHelper(parent);
+   }
+ }
+
    public MaxHeap(int capacity)
    {
       students = new ArrayList<Student>(capacity);
@@ -43,14 +51,7 @@ public class MaxHeap
    {
       return students.size();
    }
-   private void insertionHelper(int index){
-      int parent = parent(index);
-      if (students.get(parent).compareTo(students.get(index)) < 0) {
-        swap(parent, index);
-        insertionHelper(parent);
-      }
 
-   }
    public void insert(Student elt)
    {
       
