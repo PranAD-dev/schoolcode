@@ -72,14 +72,9 @@ public class MaxHeap
       while (i<students.size() && students.get(i) != elt){
          i++;
       }
-      double prevGrade = elt.gpa();
       elt.addGrade(gradePointsPerUnit, units);
-      if (prevGrade < elt.gpa()){
-        insertionHelper(i);
-      }
-      else if(prevGrade > elt.gpa()){
-        maxHeapify(i);
-      }
+      insertionHelper(i);
+      maxHeapify(i);
    }
    
    private int parent(int index)
