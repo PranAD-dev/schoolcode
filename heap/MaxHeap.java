@@ -46,9 +46,7 @@ public class MaxHeap
    private void insertionHelper(int index){
       int parent = parent(index);
       if (students.get(parent).compareTo(students.get(index)) < 0) {
-        Student temp = students.get(parent); 
-        students.set(parent, students.get(index));
-        students.set(index, temp);
+        swap(parent, index);
         insertionHelper(parent);
       }
 
@@ -69,6 +67,20 @@ public class MaxHeap
       //Please write me.  I should change the student's gpa (using a method
 	  //from the student class), and then adjust the heap as needed using
 	  //the changeKey algorithm from the videos.
+      int i;
+      for (i = 0; i < students.size(); i++ ){
+        if (students.get(i).compareTo(elt) == 0){
+            break;
+        }
+      }
+      double prevGrade = elt.gpa();
+      elt.addGrade(gradePointsPerUnit, units);
+      if (prevGrade < elt.gpa()){
+        insertionHelper(i);
+      }
+      else if(prevGrade > elt.gpa()){
+        maxHeapify(i);
+      }
    }
    
    private int parent(int index)
