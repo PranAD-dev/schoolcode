@@ -67,11 +67,9 @@ public class MaxHeap
       //Please write me.  I should change the student's gpa (using a method
 	  //from the student class), and then adjust the heap as needed using
 	  //the changeKey algorithm from the videos.
-      int i;
-      for (i = 0; i < students.size(); i++ ){
-        if (students.get(i) == elt){
-            break;
-        }
+      int i = 0;
+      while (i<students.size() && students.get(i) != elt){
+         i++;
       }
       double prevGrade = elt.gpa();
       elt.addGrade(gradePointsPerUnit, units);
