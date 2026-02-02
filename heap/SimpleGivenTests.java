@@ -69,5 +69,18 @@ public class SimpleGivenTests
 	   assertEquals(2.4, heap.extractMax().gpa(), .000001);
 	   assertEquals(2.0, heap.extractMax().gpa(), .000001);
    }
+
+   @Test
+   public void sameGPATest()
+   {
+      MaxHeap heap = new MaxHeap(10);
+      heap.insert(new Student("A", 3.5, 6));
+      heap.insert(new Student("B", 3.5, 4));
+      heap.insert(new Student("C", 3.5, 3));
+      assertEquals(3.5, heap.extractMax().gpa(), .0000001);
+      assertEquals(3.5, heap.extractMax().gpa(), .000001);
+      assertEquals(3.5, heap.extractMax().gpa(), .000001);
+      assertEquals(0, heap.size());
+   }
    
 }

@@ -69,7 +69,7 @@ public class MaxHeap
 	  //the changeKey algorithm from the videos.
       int i;
       for (i = 0; i < students.size(); i++ ){
-        if (students.get(i).compareTo(elt) == 0){
+        if (students.get(i) == elt){
             break;
         }
       }
