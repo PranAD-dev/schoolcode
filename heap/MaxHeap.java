@@ -1,4 +1,3 @@
-package heap;
 
 import java.util.ArrayList;
 import java.util.Collection;

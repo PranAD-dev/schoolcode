@@ -1,4 +1,3 @@
-package heap;
 
 import static org.junit.Assert.*;
 

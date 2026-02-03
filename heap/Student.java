@@ -1,4 +1,3 @@
-package heap;
 
 public class Student implements Comparable<Student>
 {
