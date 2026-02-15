@@ -23,6 +23,10 @@ public class MaxHeap
    public MaxHeap(Collection<Student> collection)
    {
       students = new ArrayList<Student>(collection);
+      for(int i = 0; i < size(); i++)
+      {
+         students.get(i).setHeapIndex(i);
+      }
       for(int i = size()/2 - 1; i >= 0; i--)
       {
          maxHeapify(i);
@@ -42,6 +46,7 @@ public class MaxHeap
    {
       Student value = getMax();
       students.set(0,students.get(size()-1));
+      students.get(0).setHeapIndex(0);
       students.remove(size()-1);
       maxHeapify(0);
       return value;
@@ -59,7 +64,9 @@ public class MaxHeap
 	  //following the insert algorithm from the videos.
       
       students.add(elt);
-      insertionHelper(students.size()-1);
+      int index = students.size()-1;
+      elt.setHeapIndex(index);
+      insertionHelper(index);
       
    }
    
@@ -68,10 +75,7 @@ public class MaxHeap
       //Please write me.  I should change the student's gpa (using a method
 	  //from the student class), and then adjust the heap as needed using
 	  //the changeKey algorithm from the videos.
-      int i = 0;
-      while (i<students.size() && students.get(i) != elt){
-         i++;
-      }
+      int i = elt.getHeapIndex();
       elt.addGrade(gradePointsPerUnit, units);
       insertionHelper(i);
       maxHeapify(i);
@@ -97,6 +101,8 @@ public class MaxHeap
       Student val = students.get(from);
       students.set(from,  students.get(to));
       students.set(to,  val);
+      students.get(from).setHeapIndex(from);
+      students.get(to).setHeapIndex(to);
    }
    
    private void maxHeapify(int index)

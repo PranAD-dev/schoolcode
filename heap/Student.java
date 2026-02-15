@@ -5,6 +5,7 @@ public class Student implements Comparable<Student>
    private String name;
    private double gradePoints = 0;
    private int units = 0;
+   private int heapIndex;
    
 public Student(String name)
    {
@@ -36,8 +37,18 @@ public Student(String name)
       this.units += units;
       this.gradePoints += gradePointsPerUnit * units;
    }
-   
-   
+
+   public void setHeapIndex(int index)
+   {
+      this.heapIndex = index;
+   }
+
+   public int getHeapIndex()
+   {
+      return heapIndex;
+   }
+
+
    public int compareTo(Student other)  //Do not change this method.  Ask me why if you like.
    {
       double difference = gpa() - other.gpa();
