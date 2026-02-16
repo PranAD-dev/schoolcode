@@ -81,5 +81,42 @@ public class SimpleGivenTests
       assertEquals(3.5, heap.extractMax().gpa(), .000001);
       assertEquals(0, heap.size());
    }
-   
+
+   @Test
+   public void addGradeMovesStudentUp()
+   {
+      MaxHeap heap = new MaxHeap(10);
+      Student alice = new Student("Alice", 2.0, 10);
+      Student bob = new Student("Bob", 3.5, 10);
+      heap.insert(alice);
+      heap.insert(bob);
+      assertEquals(bob, heap.getMax());
+      heap.addGrade(alice, 4.0, 40);
+      assertEquals(alice, heap.getMax());
+   }
+
+   @Test
+   public void addGradeMovesStudentDown()
+   {
+      MaxHeap heap = new MaxHeap(10);
+      Student alice = new Student("Alice", 4.0, 10);
+      Student bob = new Student("Bob", 3.0, 10);
+      heap.insert(alice);
+      heap.insert(bob);
+      assertEquals(alice, heap.getMax());
+      heap.addGrade(alice, 0.0, 30);
+      assertEquals(bob, heap.getMax());
+   }
+
+   @Test
+   public void extractAllThenInsert()
+   {
+      MaxHeap heap = new MaxHeap(10);
+      heap.insert(new Student("A", 3.0, 10));
+      heap.extractMax();
+      assertEquals(0, heap.size());
+      heap.insert(new Student("B", 2.0, 10));
+      assertEquals(2.0, heap.extractMax().gpa(), .000001);
+   }
+
 }
