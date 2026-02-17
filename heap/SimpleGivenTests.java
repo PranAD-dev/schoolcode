@@ -118,5 +118,14 @@ public class SimpleGivenTests
       heap.insert(new Student("B", 2.0, 10));
       assertEquals(2.0, heap.extractMax().gpa(), .000001);
    }
+   @Test
+   public void testEverything() 
+   {
+      MaxHeap heap = new MaxHeap(10000);
+      heap.insert(new Student("N",2.0,10));
+      heap.extractMax();
+      assertEquals(0,heap.size());
+      heap.insert(new Student("B", 2.0, 10));
+   }
 
 }
