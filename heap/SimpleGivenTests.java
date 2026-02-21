@@ -150,6 +150,22 @@ public class SimpleGivenTests
    }
 
    @Test
+   public void sizeStaysCorrect()
+   {
+      MaxHeap heap = new MaxHeap(10);
+      assertEquals(0, heap.size());
+      heap.insert(new Student("A", 3.0, 10));
+      heap.insert(new Student("B", 2.0, 10));
+      heap.insert(new Student("C", 4.0, 10));
+      assertEquals(3, heap.size());
+      heap.extractMax();
+      assertEquals(2, heap.size());
+      heap.extractMax();
+      heap.extractMax();
+      assertEquals(0, heap.size());
+   }
+
+   @Test
    public void testEverything() 
    {
       MaxHeap heap = new MaxHeap(10000);
