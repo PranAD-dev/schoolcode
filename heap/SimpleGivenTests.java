@@ -119,6 +119,22 @@ public class SimpleGivenTests
       assertEquals(2.0, heap.extractMax().gpa(), .000001);
    }
    @Test
+   public void addGradeWithCollectionBuild()
+   {
+      java.util.ArrayList<Student> list = new java.util.ArrayList<>();
+      Student a = new Student("A", 2.0, 10);
+      Student b = new Student("B", 3.0, 10);
+      Student c = new Student("C", 1.0, 10);
+      list.add(a);
+      list.add(b);
+      list.add(c);
+      MaxHeap heap = new MaxHeap(list);
+      assertEquals(b, heap.getMax());
+      heap.addGrade(c, 4.0, 40);
+      assertEquals(c, heap.getMax());
+   }
+
+   @Test
    public void testEverything() 
    {
       MaxHeap heap = new MaxHeap(10000);
