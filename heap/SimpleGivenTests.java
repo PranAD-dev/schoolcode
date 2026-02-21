@@ -135,6 +135,21 @@ public class SimpleGivenTests
    }
 
    @Test
+   public void multipleAddGradeSameStudent()
+   {
+      MaxHeap heap = new MaxHeap(10);
+      Student a = new Student("A", 1.0, 10);
+      Student b = new Student("B", 3.0, 10);
+      heap.insert(a);
+      heap.insert(b);
+      heap.addGrade(a, 4.0, 10);  // a goes to 2.5
+      heap.addGrade(a, 4.0, 10);  // a goes to 3.0
+      heap.addGrade(a, 4.0, 10);  // a goes to 3.25
+      assertEquals(a, heap.getMax());
+      assertEquals(3.25, heap.extractMax().gpa(), .000001);
+   }
+
+   @Test
    public void testEverything() 
    {
       MaxHeap heap = new MaxHeap(10000);
