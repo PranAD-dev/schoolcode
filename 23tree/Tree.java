@@ -1,253 +1,409 @@
-
+/**
+   This class implements a binary search tree whose
+   nodes hold objects that implement the Comparable
+   interface.
+*/
 public class Tree
-{
+{  
    private Node root;
+   private int size;
 
+   /**
+      Constructs an empty tree.
+   */
    public Tree()
    {
       root = null;
+      size = 0;
    }
 
-   private class Node
+   public int size()
    {
-      int key1;
-      int key2;
-      int numKeys;
-      Node left;
-      Node middle;
-      Node right;
-      int subtreeSize;
+      return size;
+   }
+
+   public int get(int x)
+   {
+      return helpGet(root, x);
+   }
+
+   private int helpGet(Node node, int x)
+   {
+      int leftCount = helpCountKeys(node.left);
+
+      if (x < leftCount)
+      {
+         return helpGet(node.left, x);
+      }
+      x -= leftCount;
+
+      if (x == 0)
+      {
+         return node.key1;
+      }
+      x--;
+
+      int middleCount = helpCountKeys(node.middle);
+
+      if (x < middleCount)
+      {
+         return helpGet(node.middle, x);
+      }
+      x -= middleCount;
+
+      if (x == 0)
+      {
+         return node.key2;
+      }
+      x--;
+
+      return helpGet(node.right, x);
+   }
+
+   public int size(int x)
+   {
+      Node found = helpfindNode(root, x);
+      if (found == null)
+      {
+         return 0;
+      }
+      return helpCountKeys(found);
+   }
+   private Node helpfindNode(Node node, int x)
+   {
+      if (node==null)
+      {
+         return null;
+      }
+      if (x==node.key1)
+      {
+         return node;
+      }
+      if (x==node.key2)
+      {
+         return node;
+      }
+      if (node.left==null)
+      {
+         return null;
+      }
+      if (x<node.key1)
+      {
+         return helpfindNode(node.left, x);
+      }
+      else if (node.numKeys==1 || x<node.key2)
+      {
+         return helpfindNode(node.middle, x);
+      }
+      else
+      {
+         return helpfindNode(node.right, x);
+      }
+   }
+
+   private int helpCountKeys(Node node)
+   {
+      int count = node.numKeys;
+      count += helpCountKeys(node.left);
+      count += helpCountKeys(node.middle);
+      count += helpCountKeys(node.right);
+      return count;
+   }
+   public boolean insert(int x)
+   {
+      if (root == null)
+      {
+         root = new Node(x);
+         size++;
+         return true;
+      }
+
+      if (helpfindNode(root, x) != null)
+      {
+         return false;
+      }
+
+      Node leaf = findLeaf(root, x);
+
+      if (leaf.numKeys == 1)
+      {
+         if (x < leaf.key1)
+         {
+            leaf.key2 = leaf.key1;
+            leaf.key1 = x;
+         }
+         else
+         {
+            leaf.key2 = x;
+         }
+         leaf.numKeys = 2;
+         size++;
+         return true;
+      }
+
+      int small, mid, big;
+      if (x < leaf.key1)
+      {
+         small = x;
+         mid = leaf.key1;
+         big = leaf.key2;
+      }
+      else if (x < leaf.key2)
+      {
+         small = leaf.key1;
+         mid = x;
+         big = leaf.key2;
+      }
+      else
+      {
+         small = leaf.key1;
+         mid = leaf.key2;
+         big = x;
+      }
+
+      Node leftNew = new Node(small);
+      Node rightNew = new Node(big);
+
+      pushUp(leaf.parent, mid, leftNew, rightNew);
+      size++;
+      return true;
+   }
+
+   private Node findLeaf(Node node, int x)
+   {
+      if (node.left == null)
+      {
+         return node;
+      }
+      if (x < node.key1)
+      {
+         return findLeaf(node.left, x);
+      }
+      else if (node.numKeys == 1 || x < node.key2)
+      {
+         return findLeaf(node.middle, x);
+      }
+      else
+      {
+         return findLeaf(node.right, x);
+      }
+   }
+
+   private void pushUp(Node parent, int val, Node leftChild, Node rightChild)
+   {
+      if (parent == null)
+      {
+         root = new Node(val);
+         root.left = leftChild;
+         root.middle = rightChild;
+         leftChild.parent = root;
+         rightChild.parent = root;
+         return;
+      }
+
+      if (parent.numKeys == 1)
+      {
+         if (val < parent.key1)
+         {
+            parent.key2 = parent.key1;
+            parent.key1 = val;
+            parent.right = parent.middle;
+            parent.left = leftChild;
+            parent.middle = rightChild;
+         }
+         else
+         {
+            parent.key2 = val;
+            parent.middle = leftChild;
+            parent.right = rightChild;
+         }
+         parent.numKeys = 2;
+         leftChild.parent = parent;
+         rightChild.parent = parent;
+         return;
+      }
+   }
+   /**
+      Inserts a new node into the tree.
+      @param obj the object to insert
+   */
+   public void add(Comparable obj) 
+   {  
+      Node newNode = new Node();
+      newNode.data = obj;
+      newNode.left = null;
+      newNode.right = null;
+      if (root == null) { root = newNode; }
+      else { root.addNode(newNode); }
+   }
+
+   /**
+      Tries to find an object in the tree.
+      @param obj the object to find
+      @return true if the object is contained in the tree
+   */
+   public boolean find(Comparable obj)
+   {
+      Node current = root;
+      while (current != null)
+      {
+         int d = current.data.compareTo(obj);
+         if (d == 0) { return true; }
+         else if (d > 0) { current = current.left; }
+         else { current = current.right; }
+      }
+      return false;
+   }
+   
+   /**
+      Tries to remove an object from the tree. Does nothing
+      if the object is not contained in the tree.
+      @param obj the object to remove
+   */
+   public void remove(Comparable obj)
+   {
+      // Find node to be removed
+
+      Node toBeRemoved = root;
+      Node parent = null;
+      boolean found = false;
+      while (!found && toBeRemoved != null)
+      {
+         int d = toBeRemoved.data.compareTo(obj);
+         if (d == 0) { found = true; }
+         else 
+         {
+            parent = toBeRemoved;
+            if (d > 0) { toBeRemoved = toBeRemoved.left; }
+            else { toBeRemoved = toBeRemoved.right; }
+         }
+      }
+
+      if (!found) { return; }
+
+      // toBeRemoved contains obj
+
+      // If one of the children is empty, use the other
+
+      if (toBeRemoved.left == null || toBeRemoved.right == null)
+      {
+         Node newChild;
+         if (toBeRemoved.left == null) 
+         {
+            newChild = toBeRemoved.right;
+         }
+         else 
+         {
+            newChild = toBeRemoved.left;
+         }
+
+         if (parent == null) // Found in root
+         {
+            root = newChild;
+         }
+         else if (parent.left == toBeRemoved)
+         {
+            parent.left = newChild;
+         }
+         else 
+         {
+            parent.right = newChild;
+         }
+         return;
+      }
+      
+      // Neither subtree is empty
+
+      // Find smallest element of the right subtree
+
+      Node smallestParent = toBeRemoved;
+      Node smallest = toBeRemoved.right;
+      while (smallest.left != null)
+      {
+         smallestParent = smallest;
+         smallest = smallest.left;
+      }
+
+      // smallest contains smallest child in right subtree
+         
+      // Move contents, unlink child
+
+      toBeRemoved.data = smallest.data;
+      if (smallestParent == toBeRemoved) 
+      {
+         smallestParent.right = smallest.right; 
+      }
+      else 
+      {
+         smallestParent.left = smallest.right; 
+      }
+   }
+   
+   /**
+      Prints the contents of the tree in sorted order.
+   */
+   public void print()
+   {  
+      print(root);
+      System.out.println();
+   }  
+
+   /**
+      Prints a node and all of its descendants in sorted order.
+      @param parent the root of the subtree to print
+   */
+   private static void print(Node parent)
+   {  
+      if (parent == null) { return; }
+      print(parent.left);
+      System.out.print(parent.data + " ");
+      print(parent.right);
+   }
+
+   /**
+      A node of a tree stores a data item and references
+      to the left and right child nodes.
+   */
+   class Node
+   {
+      public Comparable data;
+      public int key1;
+      public int key2;
+      public int numKeys;
+      public Node left;
+      public Node middle;
+      public Node right;
+      public Node parent;
+
+      Node()
+      {
+      }
 
       Node(int key)
       {
          this.key1 = key;
          this.numKeys = 1;
-         this.subtreeSize = 1;
       }
-   }
 
-   private class SplitResult
-   {
-      int promotedKey;
-      Node leftChild;
-      Node rightChild;
-
-      SplitResult(int key, Node left, Node right)
+      /**
+         Inserts a new node as a descendant of this node.
+         @param newNode the node to insert
+      */
+      public void addNode(Node newNode)
       {
-         this.promotedKey = key;
-         this.leftChild = left;
-         this.rightChild = right;
-      }
-   }
-
-   public boolean insert(int x)
-   {
-      if(root == null)
-      {
-         root = new Node(x);
-         return true;
-      }
-      if(findNode(root, x) != null)
-         return false;
-      SplitResult result = insertHelper(root, x);
-      if(result != null)
-      {
-         Node newRoot = new Node(result.promotedKey);
-         newRoot.left = result.leftChild;
-         newRoot.middle = result.rightChild;
-         newRoot.subtreeSize = 1;
-         if(newRoot.left != null)
-            newRoot.subtreeSize += newRoot.left.subtreeSize;
-         if(newRoot.middle != null)
-            newRoot.subtreeSize += newRoot.middle.subtreeSize;
-         root = newRoot;
-      }
-      return true;
-   }
-
-   public int size()
-   {
-      if(root == null)
-         return 0;
-      return root.subtreeSize;
-   }
-
-   public int size(int x)
-   {
-      Node node = findNode(root, x);
-      if(node == null)
-         return 0;
-      return node.subtreeSize;
-   }
-
-   public int get(int x)
-   {
-      return getHelper(root, x);
-   }
-
-   private Node findNode(Node node, int x)
-   {
-      if(node == null)
-         return null;
-      if(x == node.key1)
-         return node;
-      if(node.numKeys == 2 && x == node.key2)
-         return node;
-      if(x < node.key1)
-         return findNode(node.left, x);
-      if(node.numKeys == 1 || x < node.key2)
-         return findNode(node.middle, x);
-      return findNode(node.right, x);
-   }
-
-   private SplitResult insertHelper(Node node, int x)
-   {
-      if(node.left == null)
-      {
-         if(node.numKeys == 1)
+         int comp = newNode.data.compareTo(data);
+         if (comp < 0)
          {
-            if(x < node.key1)
-            {
-               node.key2 = node.key1;
-               node.key1 = x;
-            }
-            else
-            {
-               node.key2 = x;
-            }
-            node.numKeys = 2;
-            node.subtreeSize = 2;
-            return null;
+            if (left == null) { left = newNode; }
+            else { left.addNode(newNode); }
          }
-         else
+         else if (comp > 0)
          {
-            int a, b, c;
-            if(x < node.key1)
-            {
-               a = x; b = node.key1; c = node.key2;
-            }
-            else if(x < node.key2)
-            {
-               a = node.key1; b = x; c = node.key2;
-            }
-            else
-            {
-               a = node.key1; b = node.key2; c = x;
-            }
-            return new SplitResult(b, new Node(a), new Node(c));
+            if (right == null) { right = newNode; }
+            else { right.addNode(newNode); }
          }
       }
-
-      SplitResult childSplit;
-      if(x < node.key1)
-         childSplit = insertHelper(node.left, x);
-      else if(node.numKeys == 1 || x < node.key2)
-         childSplit = insertHelper(node.middle, x);
-      else
-         childSplit = insertHelper(node.right, x);
-
-      if(childSplit == null)
-      {
-         node.subtreeSize = node.numKeys;
-         if(node.left != null) node.subtreeSize += node.left.subtreeSize;
-         if(node.middle != null) node.subtreeSize += node.middle.subtreeSize;
-         if(node.right != null) node.subtreeSize += node.right.subtreeSize;
-         return null;
-      }
-
-      if(node.numKeys == 1)
-      {
-         int promoted = childSplit.promotedKey;
-         if(promoted < node.key1)
-         {
-            node.key2 = node.key1;
-            node.key1 = promoted;
-            node.right = node.middle;
-            node.left = childSplit.leftChild;
-            node.middle = childSplit.rightChild;
-         }
-         else
-         {
-            node.key2 = promoted;
-            node.middle = childSplit.leftChild;
-            node.right = childSplit.rightChild;
-         }
-         node.numKeys = 2;
-         node.subtreeSize = node.numKeys;
-         if(node.left != null) node.subtreeSize += node.left.subtreeSize;
-         if(node.middle != null) node.subtreeSize += node.middle.subtreeSize;
-         if(node.right != null) node.subtreeSize += node.right.subtreeSize;
-         return null;
-      }
-      else
-      {
-         int promoted = childSplit.promotedKey;
-         int a, b, c;
-         Node child1, child2, child3, child4;
-
-         if(promoted < node.key1)
-         {
-            a = promoted; b = node.key1; c = node.key2;
-            child1 = childSplit.leftChild;
-            child2 = childSplit.rightChild;
-            child3 = node.middle;
-            child4 = node.right;
-         }
-         else if(promoted < node.key2)
-         {
-            a = node.key1; b = promoted; c = node.key2;
-            child1 = node.left;
-            child2 = childSplit.leftChild;
-            child3 = childSplit.rightChild;
-            child4 = node.right;
-         }
-         else
-         {
-            a = node.key1; b = node.key2; c = promoted;
-            child1 = node.left;
-            child2 = node.middle;
-            child3 = childSplit.leftChild;
-            child4 = childSplit.rightChild;
-         }
-
-         Node leftNode = new Node(a);
-         leftNode.left = child1;
-         leftNode.middle = child2;
-         leftNode.subtreeSize = 1;
-         if(child1 != null) leftNode.subtreeSize += child1.subtreeSize;
-         if(child2 != null) leftNode.subtreeSize += child2.subtreeSize;
-
-         Node rightNode = new Node(c);
-         rightNode.left = child3;
-         rightNode.middle = child4;
-         rightNode.subtreeSize = 1;
-         if(child3 != null) rightNode.subtreeSize += child3.subtreeSize;
-         if(child4 != null) rightNode.subtreeSize += child4.subtreeSize;
-
-         return new SplitResult(b, leftNode, rightNode);
-      }
-   }
-
-   private int getHelper(Node node, int index)
-   {
-      int leftSize = 0;
-      if(node.left != null)
-         leftSize = node.left.subtreeSize;
-      if(index < leftSize)
-         return getHelper(node.left, index);
-      if(index == leftSize)
-         return node.key1;
-      index = index - leftSize - 1;
-      int midSize = 0;
-      if(node.middle != null)
-         midSize = node.middle.subtreeSize;
-      if(index < midSize)
-         return getHelper(node.middle, index);
-      if(node.numKeys == 1)
-         return getHelper(node.middle, index);
-      if(index == midSize)
-         return node.key2;
-      index = index - midSize - 1;
-      return getHelper(node.right, index);
    }
 }
+
+
