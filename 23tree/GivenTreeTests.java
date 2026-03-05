@@ -171,5 +171,26 @@ public class GivenTreeTests
 
    }
 
+   @Test
+   public void getFromTwoElements()
+   {
+      Tree t = new Tree();
+      t.insert(20);
+      t.insert(10);
+      assertEquals(10, t.get(0));
+      assertEquals(20, t.get(1));
+   }
+
+   @Test
+   public void getAfterOneSplit()
+   {
+      Tree t = new Tree();
+      t.insert(30);
+      t.insert(10);
+      t.insert(20);
+      assertEquals(10, t.get(0));
+      assertEquals(20, t.get(1));
+      assertEquals(30, t.get(2));
+   }
 
 }
