@@ -1,14 +1,9 @@
-/**
-   This class implements a binary search tree whose
-   nodes hold objects that implement the Comparable
-   interface.
-*/
 public class Tree
-{  
+{
    private Node root;
    private int size;
 
- 
+
    public Tree()
    {
       root = null;
@@ -22,234 +17,232 @@ public class Tree
 
    public int get(int x)
    {
-      return helpGet(root, x);
-   }
-
-   private int helpGet(Node node, int x)
-   {
-      int leftCount = helpCountKeys(node.left);
-
-      if (x < leftCount)
-      {
-         return helpGet(node.left, x);
-      }
-      x -= leftCount;
-
-      if (x == 0)
-      {
-         return node.key1;
-      }
-      x--;
-
-      int middleCount = helpCountKeys(node.middle);
-
-      if (x < middleCount)
-      {
-         return helpGet(node.middle, x);
-      }
-      x -= middleCount;
-
-      if (x == 0)
-      {
-         return node.key2;
-      }
-      x--;
-
-      return helpGet(node.right, x);
+      return root.helpGet(x);
    }
 
    public int size(int x)
    {
-      Node found = helpfindNode(root, x);
-      if (found == null)
+      Node found= root.find(x);
+      if (!found.containsKey(x))
       {
          return 0;
       }
-      return helpCountKeys(found);
-   }
-   private Node helpfindNode(Node node, int x)
-   {
-      if (node==null)
-      {
-         return null;
-      }
-      if (x==node.key1)
-      {
-         return node;
-      }
-      if (x==node.key2)
-      {
-         return node;
-      }
-      if (node.left==null)
-      {
-         return null;
-      }
-      if (x<node.key1)
-      {
-         return helpfindNode(node.left, x);
-      }
-      else if (node.numKeys==1 || x<node.key2)
-      {
-         return helpfindNode(node.middle, x);
-      }
-      else
-      {
-         return helpfindNode(node.right, x);
-      }
+      return found.countKeys();
    }
 
-   private int helpCountKeys(Node node)
-   {
-      if (node == null)
-      {
-         return 0;
-      }
-      int count = node.numKeys;
-      count += helpCountKeys(node.left);
-      count += helpCountKeys(node.middle);
-      count += helpCountKeys(node.right);
-      return count;
-   }
    public boolean insert(int x)
    {
       if (root == null)
       {
-         root = new Node(x);
+         root = new Node();
+         root.addKey(x);
          size++;
          return true;
       }
 
-      if (helpfindNode(root, x) != null)
+      Node leaf=root.find(x);
+      if (leaf.containsKey(x))
       {
          return false;
       }
+      leaf.addKey(x);
 
-      Node leaf = findLeaf(root, x);
-
-      if (leaf.numKeys == 1)
+      if (leaf.numKeys <= 2)
       {
-         if (x < leaf.key1)
-         {
-            leaf.key2 = leaf.key1;
-            leaf.key1 = x;
-         }
-         else
-         {
-            leaf.key2 = x;
-         }
-         leaf.numKeys = 2;
          size++;
          return true;
       }
 
-      int small, mid, big;
-      if (x < leaf.key1)
-      {
-         small = x;
-         mid = leaf.key1;
-         big = leaf.key2;
-      }
-      else if (x < leaf.key2)
-      {
-         small = leaf.key1;
-         mid = x;
-         big = leaf.key2;
-      }
-      else
-      {
-         small = leaf.key1;
-         mid = leaf.key2;
-         big = x;
-      }
-
-      Node leftNew = new Node(small);
-      Node rightNew = new Node(big);
-
-      pushUp(leaf.parent, mid, leftNew, rightNew);
+      pushUp(leaf);
       size++;
       return true;
    }
 
-   private Node findLeaf(Node node, int x)
+   private void pushUp(Node node)
    {
-      if (node.left == null)
+      Node result = node.split();
+      Node parent = node.parent;
+
+      if (parent== null)
       {
-         return node;
+         root = result;
+         return;
       }
-      if (x < node.key1)
+      int spot = parent.childIndex(node);
+      parent.addKeyAndChild(spot, result.keys[0], result.children[0], result.children[1]);
+
+      if (parent.numKeys > 2)
       {
-         return findLeaf(node.left, x);
-      }
-      else if (node.numKeys == 1 || x < node.key2)
-      {
-         return findLeaf(node.middle, x);
-      }
-      else
-      {
-         return findLeaf(node.right, x);
+         pushUp(parent);
       }
    }
 
-   private void pushUp(Node parent, int val, Node leftChild, Node rightChild)
-   {
-      if (parent == null)
-      {
-         root = new Node(val);
-         root.left = leftChild;
-         root.middle = rightChild;
-         leftChild.parent = root;
-         rightChild.parent = root;
-         return;
-      }
-
-      if (parent.numKeys == 1)
-      {
-         if (val < parent.key1)
-         {
-            parent.key2 = parent.key1;
-            parent.key1 = val;
-            parent.right = parent.middle;
-            parent.left = leftChild;
-            parent.middle = rightChild;
-         }
-         else
-         {
-            parent.key2 = val;
-            parent.middle = leftChild;
-            parent.right = rightChild;
-         }
-         parent.numKeys = 2;
-         leftChild.parent = parent;
-         rightChild.parent = parent;
-         return;
-      }
-   }
- 
 
    class Node
    {
-      public int key1;
-      public int key2;
+      public int[] keys;
       public int numKeys;
-      public Node left;
-      public Node middle;
-      public Node right;
+      public Node[] children;
       public Node parent;
 
       Node()
       {
+         keys = new int[3];
+         children = new Node[4];
+         numKeys = 0;
       }
 
-      Node(int key)
+      Node getChild(int x)
       {
-         this.key1 = key;
-         this.numKeys = 1;
+         for (int i=0; i<numKeys; i++)
+         {
+            if (x<keys[i])
+            {
+               return children[i];
+            }
+         }
+         return children[numKeys];
       }
 
-     
-      
+      boolean isLeaf()
+      {
+         if (children[0]==null) {
+            return true;
+         }
+         else {
+            return false;
+         }
+      }
+
+      boolean containsKey(int x)
+      {
+         for (int i = 0; i<numKeys; i++)
+         {
+            if (keys[i]==x)
+            {
+               return true;
+            }
+         }
+         return false;
+      }
+
+
+      Node find(int x)
+      {
+         if (isLeaf()||containsKey(x))
+         {
+            return this;
+         }
+         return getChild(x).find(x);
+      }
+
+      int childIndex(Node child)
+      {
+         for (int i=0; i<=numKeys; i++)
+         {
+            if (children[i] == child)
+            {
+               return i;
+            }
+         }
+         return -1;
+      }
+
+      void addKey(int x)
+      {
+         int i = numKeys - 1;
+         while (i>=0 && keys[i]>x)
+         {
+            keys[i+1] = keys[i];
+            i--;
+         }
+         keys[i+1] = x;
+         numKeys++;
+      }
+
+
+      void addKeyAndChild(int spot, int key, Node leftChild, Node rightChild)
+      {
+         for (int i=numKeys-1; i>=spot;i--)
+         {
+            keys[i+1] = keys[i];
+         }
+         keys[spot] = key;
+
+         for (int i = numKeys; i > spot; i--)
+         {
+            children[i+1] = children[i];
+         }
+         children[spot] = leftChild;
+         children[spot + 1] = rightChild;
+         leftChild.parent = this;
+         rightChild.parent = this;
+         numKeys++;
+      }
+
+      Node split()
+      {
+         Node up = new Node();
+         up.addKey(keys[1]);
+         Node left = new Node();
+         left.addKey(keys[0]);
+         Node right = new Node();
+         right.addKey(keys[2]);
+         left.children[0] = children[0];
+         left.children[1] = children[1];
+         right.children[0] = children[2];
+         right.children[1] = children[3];
+         if (children[0] != null)
+         {
+            children[0].parent = left;
+            children[1].parent = left;
+            children[2].parent = right;
+            children[3].parent = right;
+         }
+
+         up.children[0] = left;
+         up.children[1] = right;
+         left.parent = up;
+         right.parent = up;
+
+         return up;
+      }
+
+      int countKeys()
+      {
+         int count = numKeys;
+         for (int i=0; i<= numKeys; i++)
+         {
+            if (children[i] != null)
+            {
+               count += children[i].countKeys();
+            }
+         }
+         return count;
+      }
+
+      int helpGet(int x)
+      {
+         for (int i =0; i<numKeys; i++)
+         {
+            int childCount=0;
+            if (children[i]!=null)
+            {
+               childCount = children[i].countKeys();
+            }
+            if (x<childCount)
+            {
+               return children[i].helpGet(x);
+            }
+            x -= childCount;
+
+            if (x== 0)
+            {
+               return keys[i];
+            }
+            x--;
+         }
+         return children[numKeys].helpGet(x);
+      }
    }
 }
-
-
