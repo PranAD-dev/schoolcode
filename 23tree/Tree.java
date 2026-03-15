@@ -36,6 +36,7 @@ public class Tree
       {
          root = new Node();
          root.addKey(x);
+         root.subtreeSize = 1;
          size++;
          return true;
       }
@@ -47,35 +48,21 @@ public class Tree
       }
       leaf.addKey(x);
 
-      if (leaf.numKeys <= 2)
+      Node cur = leaf;
+      while (cur != null)
       {
-         size++;
-         return true;
+         cur.subtreeSize++;
+         cur = cur.parent;
       }
 
-      pushUp(leaf);
+      if (leaf.numKeys > 2)
+      {
+         root = leaf.pushUp();
+      }
       size++;
       return true;
    }
 
-   private void pushUp(Node node)
-   {
-      Node result = node.split();
-      Node parent = node.parent;
-
-      if (parent== null)
-      {
-         root = result;
-         return;
-      }
-      int spot = parent.childIndex(node);
-      parent.addKeyAndChild(spot, result.keys[0], result.children[0], result.children[1]);
-
-      if (parent.numKeys > 2)
-      {
-         pushUp(parent);
-      }
-   }
 
 
    class Node
@@ -85,11 +72,14 @@ public class Tree
       public Node[] children;
       public Node parent;
 
+      int subtreeSize;
+
       Node()
       {
          keys = new int[3];
          children = new Node[4];
          numKeys = 0;
+         subtreeSize = 0;
       }
 
       Node getChild(int x)
@@ -140,7 +130,7 @@ public class Tree
       {
          for (int i=0; i<=numKeys; i++)
          {
-            if (children[i] == child)
+            if (children[i]==child)
             {
                return i;
             }
@@ -180,6 +170,24 @@ public class Tree
          numKeys++;
       }
 
+      Node pushUp()
+      {
+         Node result = split();
+
+         if (parent ==null)
+         {
+            return result;
+         }
+         int spot = parent.childIndex(this);
+         parent.addKeyAndChild(spot,result.keys[0],result.children[0],result.children[1]);
+
+         if (parent.numKeys >2)
+         {
+            return parent.pushUp();
+         }
+         return root;
+      }
+
       Node split()
       {
          Node up = new Node();
@@ -198,7 +206,15 @@ public class Tree
             children[1].parent = left;
             children[2].parent = right;
             children[3].parent = right;
+            left.subtreeSize = 1 + children[0].subtreeSize + children[1].subtreeSize;
+            right.subtreeSize = 1 + children[2].subtreeSize + children[3].subtreeSize;
          }
+         else
+         {
+            left.subtreeSize =1;
+            right.subtreeSize= 1;
+         }
+         up.subtreeSize = 1 +left.subtreeSize + right.subtreeSize;
 
          up.children[0] = left;
          up.children[1] = right;
@@ -210,29 +226,22 @@ public class Tree
 
       int countKeys()
       {
-         int count = numKeys;
-         for (int i=0; i<= numKeys; i++)
-         {
-            if (children[i] != null)
-            {
-               count += children[i].countKeys();
-            }
-         }
-         return count;
+         return subtreeSize;
       }
 
       int helpGet(int x)
       {
-         for (int i =0; i<numKeys; i++)
+         int i = 0;
+         for (; i<numKeys; i++)
          {
             int childCount=0;
             if (children[i]!=null)
             {
-               childCount = children[i].countKeys();
+               childCount = children[i].subtreeSize;
             }
             if (x<childCount)
             {
-               return children[i].helpGet(x);
+               break;
             }
             x -= childCount;
 
@@ -242,7 +251,7 @@ public class Tree
             }
             x--;
          }
-         return children[numKeys].helpGet(x);
+         return children[i].helpGet(x);
       }
    }
 }
